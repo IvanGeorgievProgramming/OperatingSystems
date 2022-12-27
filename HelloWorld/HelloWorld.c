@@ -12,3 +12,10 @@ int main(){
 
     return 0;
 }
+
+/*
+Linux - Compile and run:
+
+gcc HelloWorld/HelloWorld.c
+./a.out
+*/
