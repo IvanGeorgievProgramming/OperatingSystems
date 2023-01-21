@@ -1,3 +1,4 @@
-Hello World!
-My name is Ivan 
-Nice to meet you!
+true
+false
+df -i -h
+ls -t -r -i -a -l
