@@ -1,12 +1,8 @@
-//exit, read, write, close
 #include <unistd.h>
-// open:
 #include <sys/types.h> 
 #include <sys/stat.h>
 #include <fcntl.h>
-// printf:
 #include<stdio.h>
-// exit
 #include<stdlib.h>
 #include<stdint.h>
 #include<time.h>
@@ -205,4 +201,6 @@ void executeCommands(char* filename){
             }
         }
     }
+
+    close(fd);
 }
