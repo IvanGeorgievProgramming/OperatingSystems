@@ -1,9 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
+//exit, read, write, close
+#include <unistd.h>
+// open:
+#include <sys/types.h> 
+#include <sys/stat.h>
+#include <fcntl.h>
+// printf:
+#include<stdio.h>
+// exit
+#include<stdlib.h>
+#include<stdint.h>
+#include<time.h>
+#include<err.h>
 
+int numRows(int file);
 int numWords(char* row);
 int* sizeOfWords(char* row);
 char** getWords(char* row);
+void executeCommands();
 
 int main(int argc, char *argv[]){
     // Make a string
@@ -28,6 +41,31 @@ int main(int argc, char *argv[]){
         printf("%s ", words[i]);
     }
     printf("\n");
+
+    // Get the number of rows in a file
+    executeCommands();
+}
+
+// Make a function that counts the number of rows in a file.
+int numRows(int file){
+    lseek(file, 0, SEEK_SET);
+
+    int lines = 0, bytes = 0;
+    char symbol;
+    int readStatus = read(file, &symbol, 1);
+
+    while(readStatus == 1){
+        bytes++;
+        if(symbol == '\n'){
+            lines++;
+            bytes++;
+        }
+        readStatus = read(file, &symbol, 1);
+    }
+
+    lines++;
+
+    return lines;
 }
 
 // Make a function that counts the number of words in a string.
@@ -97,4 +135,15 @@ char** getWords(char* row){
     }
 
     return words;
+}
+
+// Make a function to execute the commands.
+void executeCommands(){
+    int fd = open("CommandInterpreter/commands", O_RDONLY);
+    if(fd == -1){
+        err(1, "Error opening file");
+    }
+
+    int numOfRows = numRows(fd);
+    printf("The number of rows is: %d\n", numOfRows);
 }
