@@ -22,19 +22,25 @@ int main(int argc, char *argv[]){
 }
 
 int numRows(int file){
-    lseek(file, 0, SEEK_SET);
+    if(lseek(file, 0, SEEK_SET) == -1){
+        err(1, "Error seeking");
+    }
 
-    int lines = 0, bytes = 0;
+    int lines = 0;
     char symbol;
     int readStatus = read(file, &symbol, 1);
+    if(readStatus == -1){
+        err(1, "Error reading");
+    }
 
     while(readStatus == 1){
-        bytes++;
         if(symbol == '\n'){
             lines++;
-            bytes++;
         }
         readStatus = read(file, &symbol, 1);
+        if(readStatus == -1){
+            err(1, "Error reading");
+        }
     }
 
     lines++;
@@ -46,14 +52,22 @@ int* sizeRows(int file){
     int numOfRows = numRows(file);
 
     int* sizeOfRows = (int*)malloc(numOfRows * sizeof(int));
+    if(sizeOfRows == NULL){
+        err(1, "Error allocating memory");
+    }
 
     int rowIndex = 0;
     int charIndex = 0;
 
-    lseek(file, 0, SEEK_SET);
+    if(lseek(file, 0, SEEK_SET) == -1){
+        err(1, "Error seeking");
+    }
 
     char symbol;
     int readStatus = read(file, &symbol, 1);
+    if(readStatus == -1){
+        err(1, "Error reading");
+    }
 
     while(readStatus == 1){
         if(symbol == '\n'){
@@ -64,6 +78,9 @@ int* sizeRows(int file){
             charIndex++;
         }
         readStatus = read(file, &symbol, 1);
+        if(readStatus == -1){
+            err(1, "Error reading");
+        }
     }
 
     return sizeOfRows;
@@ -73,22 +90,33 @@ char** getRows(int file){
     int numOfRows = numRows(file);
 
     char** rows = (char**)malloc((numOfRows + 1) * sizeof(char*));
+    if(rows == NULL){
+        err(1, "Error allocating memory");
+    }
     rows[numOfRows] = NULL;
 
     int* sizeOfRows = sizeRows(file);
 
     for(int i = 0; i < numOfRows; i++){
         rows[i] = (char*)malloc((sizeOfRows[i] + 1) * sizeof(char));
+        if(rows[i] == NULL){
+            err(1, "Error allocating memory");
+        }
         rows[i][sizeOfRows[i]] = '\0';
     }
 
     int rowIndex = 0;
     int charIndex = 0;
 
-    lseek(file, 0, SEEK_SET);
+    if(lseek(file, 0, SEEK_SET) == -1){
+        err(1, "Error seeking");
+    }
 
     char symbol;
     int readStatus = read(file, &symbol, 1);
+    if(readStatus == -1){
+        err(1, "Error reading");
+    }
 
     while(readStatus == 1){
         if(symbol == '\n'){
@@ -99,6 +127,9 @@ char** getRows(int file){
             charIndex++;
         }
         readStatus = read(file, &symbol, 1);
+        if(readStatus == -1){
+            err(1, "Error reading");
+        }
     }
 
     return rows;
@@ -122,6 +153,9 @@ int* sizeWords(char* row){
     int numOfWords = numWords(row);
 
     int* sizeOfWords = (int*)malloc(numOfWords * sizeof(int));
+    if(sizeOfWords == NULL){
+        err(1, "Error allocating memory");
+    }
 
     int wordSize = 0;
     int wordIndex = 0;
@@ -145,12 +179,18 @@ char** getWords(char* row){
     int numOfWords = numWords(row);
 
     char** words = (char**)malloc((numOfWords + 1) * sizeof(char*));
+    if(words == NULL){
+        err(1, "Error allocating memory");
+    }
     words[numOfWords] = NULL;
 
     int* sizeOfWords = sizeWords(row);
 
     for(int i = 0; i < numOfWords; i++){
         words[i] = (char*)malloc((sizeOfWords[i] + 1) * sizeof(char));
+        if(words[i] == NULL){
+            err(1, "Error allocating memory");
+        }
         words[i][sizeOfWords[i]] = '\0';
     }
 
@@ -200,7 +240,12 @@ void executeCommands(char* filename){
                 printf("Child %d exited with status %d\n", child, WEXITSTATUS(status));
             }
         }
+
+        if(i == numOfRows - 1){
+            free(words);
+        }
     }
 
+    free(rows);
     close(fd);
 }
