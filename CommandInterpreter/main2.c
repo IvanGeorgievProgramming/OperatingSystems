@@ -9,35 +9,32 @@
 #include <fcntl.h>
 #include <time.h>
 
-int numRows(int file, int* errorDetected);
-int* sizeRows(int file, int* errorDetected);
-char** getRows(int file, int* errorDetected);
-int numWords(char* row, int* errorDetected);
-int* sizeWords(char* row, int* errorDetected);
-char** getWords(char* row, int* errorDetected);
-void errorHandler(int errorDetected);
+int numRows(int file);
+int* sizeRows(int file);
+char** getRows(int file);
+int numWords(char* row);
+int* sizeWords(char* row);
+char** getWords(char* row);
 void executeCommands(char* filename);
 
 int main(int argc, char *argv[]){
     if(argc != 2){
         errx(1, "Invalid number of arguments");
     }
-    
+
     executeCommands(argv[1]);
 }
 
-int numRows(int file, int* errorDetected){
+int numRows(int file){
     if(lseek(file, 0, SEEK_SET) == -1){
-        errorDetected = -1;
-        return;
+        err(1, "Error seeking");
     }
 
     int lines = 0;
     char symbol;
     int readStatus = read(file, &symbol, 1);
     if(readStatus == -1){
-        errorDetected = -2;
-        return;
+        err(1, "Error reading");
     }
 
     while(readStatus == 1){
@@ -46,8 +43,7 @@ int numRows(int file, int* errorDetected){
         }
         readStatus = read(file, &symbol, 1);
         if(readStatus == -1){
-            errorDetected = -2;
-            return;
+            err(1, "Error reading");
         }
     }
 
@@ -56,28 +52,25 @@ int numRows(int file, int* errorDetected){
     return lines;
 }
 
-int* sizeRows(int file, int* errorDetected){
-    int numOfRows = numRows(file, errorDetected);
+int* sizeRows(int file){
+    int numOfRows = numRows(file);
 
     int* sizeOfRows = (int*)malloc(numOfRows * sizeof(int));
     if(sizeOfRows == NULL){
-        errorDetected = -3;
-        return;
+        err(1, "Error allocating memory");
     }
 
     int rowIndex = 0;
     int charIndex = 0;
 
     if(lseek(file, 0, SEEK_SET) == -1){
-        errorDetected = -1;
-        return;
+        err(1, "Error seeking");
     }
 
     char symbol;
     int readStatus = read(file, &symbol, 1);
     if(readStatus == -1){
-        errorDetected = -2;
-        return;
+        err(1, "Error reading");
     }
 
     while(readStatus == 1){
@@ -90,31 +83,28 @@ int* sizeRows(int file, int* errorDetected){
         }
         readStatus = read(file, &symbol, 1);
         if(readStatus == -1){
-            errorDetected = -2;
-            return;
+            err(1, "Error reading");
         }
     }
 
     return sizeOfRows;
 }
 
-char** getRows(int file, int* errorDetected){
-    int numOfRows = numRows(file, errorDetected);
+char** getRows(int file){
+    int numOfRows = numRows(file);
 
     char** rows = (char**)malloc((numOfRows + 1) * sizeof(char*));
     if(rows == NULL){
-        errorDetected = -3;
-        return;
+        err(1, "Error allocating memory");
     }
     rows[numOfRows] = NULL;
 
-    int* sizeOfRows = sizeRows(file, errorDetected);
+    int* sizeOfRows = sizeRows(file);
 
     for(int i = 0; i < numOfRows; i++){
         rows[i] = (char*)malloc((sizeOfRows[i] + 1) * sizeof(char));
         if(rows[i] == NULL){
-            errorDetected = -3;
-            return;
+            err(1, "Error allocating memory");
         }
         rows[i][sizeOfRows[i]] = '\0';
     }
@@ -123,15 +113,13 @@ char** getRows(int file, int* errorDetected){
     int charIndex = 0;
 
     if(lseek(file, 0, SEEK_SET) == -1){
-        errorDetected = -1;
-        return;
+        err(1, "Error seeking");
     }
 
     char symbol;
     int readStatus = read(file, &symbol, 1);
     if(readStatus == -1){
-        errorDetected = -2;
-        return;
+        err(1, "Error reading");
     }
 
     while(readStatus == 1){
@@ -144,15 +132,14 @@ char** getRows(int file, int* errorDetected){
         }
         readStatus = read(file, &symbol, 1);
         if(readStatus == -1){
-            errorDetected = -2;
-            return;
+            err(1, "Error reading");
         }
     }
 
     return rows;
 }
 
-int numWords(char* row, int* errorDetected){
+int numWords(char* row){
     int numOfWords = 0;
 
     for(int i = 0; row[i] != '\0'; i++){
@@ -166,13 +153,12 @@ int numWords(char* row, int* errorDetected){
     return numOfWords;
 }
 
-int* sizeWords(char* row, int* errorDetected){
-    int numOfWords = numWords(row, errorDetected);
+int* sizeWords(char* row){
+    int numOfWords = numWords(row);
 
     int* sizeOfWords = (int*)malloc(numOfWords * sizeof(int));
     if(sizeOfWords == NULL){
-        errorDetected = -3;
-        return;
+        err(1, "Error allocating memory");
     }
 
     int wordSize = 0;
@@ -193,23 +179,21 @@ int* sizeWords(char* row, int* errorDetected){
     return sizeOfWords;
 }
 
-char** getWords(char* row, int* errorDetected){
-    int numOfWords = numWords(row, errorDetected);
+char** getWords(char* row){
+    int numOfWords = numWords(row);
 
     char** words = (char**)malloc((numOfWords + 1) * sizeof(char*));
     if(words == NULL){
-        errorDetected = -3;
-        return;
+        err(1, "Error allocating memory");
     }
     words[numOfWords] = NULL;
 
-    int* sizeOfWords = sizeWords(row, errorDetected);
+    int* sizeOfWords = sizeWords(row);
 
     for(int i = 0; i < numOfWords; i++){
         words[i] = (char*)malloc((sizeOfWords[i] + 1) * sizeof(char));
         if(words[i] == NULL){
-            errorDetected = -3;
-            return;
+            err(1, "Error allocating memory");
         }
         words[i][sizeOfWords[i]] = '\0';
     }
@@ -230,94 +214,26 @@ char** getWords(char* row, int* errorDetected){
     return words;
 }
 
-void errorHandler(int errorDetected){
-    if(errorDetected == -1){
-        err(1, "Error seeking in file");
-    }
-    else if(errorDetected == -2){
-        err(1, "Error reading from file");
-    }
-    else if(errorDetected == -3){
-        err(1, "Error allocating memory");
-    }
-    else if(errorDetected == -4){
-        err(1, "Error forking");
-    }
-    else if(errorDetected == -5){
-        err(1, "Error executing command");
-    }
-}
-
-void executeCommands(char* filename, int* errorDetected){
+void executeCommands(char* filename){
     int fd = open(filename, O_RDONLY);
-    int errorDetected = 0;
     if(fd == -1){
         err(1, "Error opening file");
     }
 
-    int numOfRows = numRows(fd, errorDetected);
-    if(errorDetected != 0){
-        errorHandler(errorDetected);
-    }
-    char** rows = getRows(fd, errorDetected);
-    if(errorDetected != 0){
-        for(int i = 0; i < numOfRows; i++){
-            free(rows[i]);
-        }
-        free(rows);
-
-        errorHandler(errorDetected);
-    }
+    int numOfRows = numRows(fd);
+    char** rows = getRows(fd);
 
     for(int i = 0; i < numOfRows; i++){
-        char** words = getWords(rows[i], errorDetected);
-
-        if(errorDetected != 0){
-            for(int j = 0; j < numWords(rows[i], errorDetected); j++){
-                free(words[j]);
-            }
-            free(words);
-
-            for(int j = 0; j < i; j++){
-                free(rows[j]);
-            }
-            free(rows);
-
-            errorHandler(errorDetected);
-        }
+        char** words = getWords(rows[i]);
         
         int childPid = fork();
 
         if(childPid == -1){
-            errorDetected = -4;
-
-            for(int j = 0; j < numWords(rows[i], errorDetected); j++){
-                free(words[j]);
-            }
-            free(words);
-
-            for(int j = 0; j < i; j++){
-                free(rows[j]);
-            }
-            free(rows);
-
-            errorHandler(errorDetected);
+            err(1, "Error forking");
         }
         else if(childPid == 0){
             if(execvp(words[0], words) == -1){
-                errorDetected = -5;
-
-                for(int j = 0; j < numWords(rows[i], errorDetected); j++){
-                    free(words[j]);
-                }
-                free(words);
-
-                for(int j = 0; j < i; j++){
-                    free(rows[j]);
-                }
-                free(rows);
-
-                errorHandler(errorDetected);
+                err(1, "Error executing command");
             }
         }
         else{
@@ -330,7 +246,7 @@ void executeCommands(char* filename, int* errorDetected){
         }
 
         if(i == numOfRows - 1){
-            for(int j = 0; j < numWords(rows[i], errorDetected); j++){
+            for(int j = 0; words[j] != NULL; j++){
                 free(words[j]);
             }
             free(words);
@@ -341,6 +257,5 @@ void executeCommands(char* filename, int* errorDetected){
         free(rows[i]);
     }
     free(rows);
-
     close(fd);
 }
