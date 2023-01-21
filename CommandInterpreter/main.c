@@ -3,6 +3,7 @@
 
 int numWords(char* row);
 int* sizeOfWords(char* row);
+char** getWords(char* row);
 
 int main(int argc, char *argv[]){
     // Make a string
@@ -17,6 +18,14 @@ int main(int argc, char *argv[]){
     printf("The size of each word is: ");
     for (int i = 0; i < numOfWords; i++){
         printf("%d ", sizeOfWordsArr[i]);
+    }
+    printf("\n");
+
+    // Get all the words in the string
+    char** words = getWords(str);
+    printf("The words are: ");
+    for (int i = 0; i < numOfWords; i++){
+        printf("%s ", words[i]);
     }
     printf("\n");
 }
@@ -58,4 +67,34 @@ int* sizeOfWords(char* row){
     sizeOfWords[wordIndex] = wordSize;
 
     return sizeOfWords;
+}
+
+// Make a function that returns all the words in a string.
+char** getWords(char* row){
+    int numOfWords = numWords(row);
+
+    char** words = (char**)malloc((numOfWords + 1) * sizeof(char*));
+    words[numOfWords] = NULL;
+
+    int* sizeOfWordsArr = sizeOfWords(row);
+
+    for(int i = 0; i < numOfWords; i++){
+        words[i] = (char*)malloc((sizeOfWordsArr[i] + 1) * sizeof(char));
+        words[i][sizeOfWordsArr[i]] = '\0';
+    }
+
+    int wordIndex = 0;
+    int charIndex = 0;
+
+    for(int i = 0; row[i] != '\0'; i++){
+        if(row[i] == ' '){
+            wordIndex++;
+            charIndex = 0;
+        } else {
+            words[wordIndex][charIndex] = row[i];
+            charIndex++;
+        }
+    }
+
+    return words;
 }
