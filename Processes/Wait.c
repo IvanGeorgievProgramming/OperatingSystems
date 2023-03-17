@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
+
+void waitingTheOtherProcess();
+
+int main(int argc, char *argv[]){
+
+    waitingTheOtherProcess();
+
+    return 0;
+}
+
+void waitingTheOtherProcess(){
+    int id = fork();
+    int n;
+
+    if(id == 0){
+        n = 1;
+    }
+    else{
+        n = 6;
+    }
+
+    if(id != 0){
+        wait();
+    }
+
+    for(int i = n; i < n + 5; i++){
+        printf("%d ", i);
+        fflush(stdout);
+    }
+
+    if(id != 0){
+        printf("\n");
+    }
+}
